@@ -79,8 +79,14 @@ section
           assume : b = a,
           -- I couldn't get eq.subst ‹b = a› ‹a < b› to work, or any permutation of that
           -- This is from https://stackoverflow.com/a/45404778/245362
-          -- I don't really understand what simp does or why this works
-          have a < a, by simp * at *,
+          -- looks like you need to explicitly fill in every param of eq.subst sometimes
+          -- I think the @ in front keeps lean from trying to infer things
+          -- but we can still tell it to infer parts of its params with _'s
+          have a < a, from @eq.subst _ (λ h, a < h) _ _ ‹b = a› ‹a < b›,
+          -- we could also have written the following without any _'s
+          -- have a < a, from @eq.subst A (λ h, a < h) b a ‹b = a› ‹a < b›,
+          -- You can also relace this with the following, but I don't understand it
+          -- have a < a, by simp * at *,
           have ¬ (a < a), from irreflR a,
           show false, from ‹¬ (a < a)› ‹a < a›
         )
